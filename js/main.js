@@ -9,10 +9,10 @@ const remainingTasks = document.querySelector(".options__remaining");
 const LOCAL_STORAGE_LIST = [];
 let activeTasksCount = 0;
 
-//detect the device's color mode
-if (isDarkMode) {
-    toggleTheme();
-}
+// //detect the device's color mode
+// if (isDarkMode) {
+//     toggleTheme();
+// }
 
 themeToggler.forEach(btn => {
     btn.addEventListener("click", toggleTheme);
@@ -84,7 +84,7 @@ function toggleTheme() {
 
 function addToDo(task) {
     const toDoItem = `
-    <li class="toDo__list" data-complete="false">
+    <li class="toDo__list" data-complete="false" draggable="true">
         <span class="checkbox"></span>
         <p class="toDo__text">${task}</p>
 
@@ -94,7 +94,7 @@ function addToDo(task) {
 
     toDoContainer.insertAdjacentHTML("beforeend", toDoItem);
 
-    saveToStorage(task);
+    saveToStorage(task, false);
     tasksCounter("inc");
     optionsVisibility();
 }
@@ -146,8 +146,8 @@ function updateTaskStatus(task) {
     }
 }
 
-function tagAsComplete(list) {
-    const listContainer = list.closest(".toDo__list");
+function tagAsComplete(listElement) {
+    const listContainer = listElement.closest(".toDo__list");
     
     listContainer.setAttribute("data-complete", "true");
 }
@@ -200,9 +200,10 @@ function clearCompleted() {
 
     toDoLists.forEach(list => {
         if (list.dataset.complete === "true") {
-            const indexToRemove = Array.from(toDoLists).indexOf(list)
+            const indexToRemove = Array.from(toDoLists).indexOf(list);
+            const listText = list.querySelector(".toDo__text").textContent;
 
-            removeFromStorage(indexToRemove);
+            removeFromStorage(indexToRemove, listText);
             toDoContainer.removeChild(list);
         }
     })
@@ -216,10 +217,15 @@ function saveToStorage(list) {
     localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST));
 }
 
-function removeFromStorage(taskIndex) {
-    LOCAL_STORAGE_LIST.splice(taskIndex, 1)
+function removeFromStorage(index, text) {
+    if (LOCAL_STORAGE_LIST[index] === text) {
+        LOCAL_STORAGE_LIST.splice(index, 1)
+    } else {
+        index--;
+        LOCAL_STORAGE_LIST.splice(index, 1)
+    }
 
-    localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST))
+    localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST));
 }
 
 function checkStorage() {
@@ -229,3 +235,50 @@ function checkStorage() {
         savedList.forEach(list => addToDo(list))
     }
 }
+
+toDoContainer.addEventListener("dragstart", e => {
+    const target = e.target;
+    target.classList.add("toDo__list--dragging");
+
+    const inactive = toDoContainer.querySelectorAll(".toDo__list:not(.toDo__list--dragging)");
+
+    inactive.forEach(list => list.classList.add("toDo__list--inactive"));
+});
+
+toDoContainer.addEventListener("dragend", e => {
+    const target = e.target;
+    const inactive = toDoContainer.querySelectorAll(".toDo__list:not(.toDo__list--dragging)");
+
+    target.classList.remove("toDo__list--dragging");
+
+    inactive.forEach(list => {
+        list.classList.remove("toDo__list--inactive");
+        list.classList.remove("toDo__list--dropzone")
+    })
+})
+
+toDoContainer.addEventListener("dragenter", e => {
+    const target = e.target; 
+
+    if (!target.classList.contains("toDo__list--dragging")) {
+        target.classList.add("toDo__list--dropzone");
+    }
+})
+
+toDoContainer.addEventListener("dragleave", e => {
+    const target = e.target; 
+
+    target.classList.remove("toDo__list--dropzone");
+})
+
+toDoContainer.addEventListener("dragover", e => {
+    e.preventDefault();
+})
+
+toDoContainer.addEventListener("drop", e => {
+    const target = e.target;
+    const listContainer = target.parentElement;
+    const selectedList = document.querySelector(".toDo__list--dragging");
+
+    listContainer.insertBefore(selectedList, target);
+})

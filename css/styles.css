@@ -70,6 +70,7 @@ body {
   font-family: "Josefin Sans", sans-serif;
   color: white;
   letter-spacing: .5rem;
+  cursor: default;
 }
 
 .header__form {
@@ -177,6 +178,18 @@ body {
   transition: border-bottom 0.2s ease-in-out;
 }
 
+.toDo__list--dragging {
+  opacity: .5;
+}
+
+.toDo__list--inactive {
+  background: #ebebeb;
+}
+
+.toDo__list--dropzone {
+  background: #d6d4d4;
+}
+
 .toDo__text {
   font-family: "Josefin Sans", sans-serif;
   font-size: .9rem;
@@ -185,6 +198,7 @@ body {
   display: -ms-inline-flexbox;
   display: inline-flex;
   margin: 0 .8rem;
+  cursor: default;
   -webkit-transition: color 0.2s ease-in-out;
   transition: color 0.2s ease-in-out;
 }
@@ -197,6 +211,7 @@ body {
 .toDo__remove {
   margin-left: auto;
   width: .9rem;
+  cursor: pointer;
 }
 
 .options {
@@ -271,7 +286,6 @@ body {
 
 .dark-theme .header {
   background-image: url("/images/bg-mobile-dark.jpg");
-  background-size: cover;
 }
 
 @media (min-width: 48rem) {

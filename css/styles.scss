@@ -1,4 +1,4 @@
-@import "./variables";
+@import "./variables&mixins";
 
 html {
     box-sizing: border-box;
@@ -51,6 +51,7 @@ body {
         font-family: $font-family;
         color: $white;
         letter-spacing: .5rem;
+        cursor: default;
     }
 
     &__form {
@@ -127,14 +128,24 @@ body {
     margin: 0 auto;
     @include transition(background-color);
 
-    $self: &;
-
     &__list {
         display: flex;
         align-items: center;
         padding: 1rem;
         border-bottom: 1px solid $veryLightGray;
         @include transition(border-bottom);
+
+        &--dragging {
+            opacity: .5;
+        }
+
+        &--inactive {
+            background: rgb(235, 235, 235);
+        }
+
+        &--dropzone {
+            background: rgb(214, 212, 212);
+        }
     }
 
     &__text {
@@ -143,6 +154,7 @@ body {
         color: $veryDarkGrayishBlue;
         display: inline-flex;
         margin: 0 .8rem;
+        cursor: default;
         @include transition(color);
 
         &--checked {
@@ -154,6 +166,7 @@ body {
     &__remove {
         margin-left: auto;
         width: .9rem;
+        cursor: pointer;
     }
 }
 
@@ -214,7 +227,6 @@ body {
 .dark-theme {
     .header {
         background-image: url("/images/bg-mobile-dark.jpg");
-        background-size: cover;
 
         @include media-query(tablet) {
             background-image: url("/images/bg-desktop-dark.jpg");
