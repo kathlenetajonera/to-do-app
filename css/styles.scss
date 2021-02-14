@@ -1,0 +1,286 @@
+@import "./variables";
+
+html {
+    box-sizing: border-box;
+}
+
+body {
+    box-sizing: inherit;
+    margin: 0;
+}
+
+* {
+    box-sizing: inherit;
+}
+
+.header {
+    height: 14.375rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    background-image: url("/images/bg-mobile-light.jpg");
+    background-size: cover;
+    @include transition(background-image);
+
+    @include media-query(tablet) {
+        background-image: url("/images/bg-desktop-light.jpg");
+    }
+
+    &__toggle-btn {
+        cursor: pointer;
+    }
+
+    &__light-mode {
+        display: none;
+    }
+
+    &__dark-mode {
+        display: block;
+    }
+
+    &__wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: Min(36rem, 100%);
+        margin: 0 auto;
+    }
+
+    &__title {
+        font-family: $font-family;
+        color: $white;
+        letter-spacing: .5rem;
+    }
+
+    &__form {
+        position: relative;
+        width: Min(36rem, 100%);
+        margin: 0 auto;
+    }
+
+    &__input {
+        width: 100%;
+        outline: none;
+        border: none;
+        padding: 1rem 3.5rem;
+        border-radius: .25rem;
+        font-family: $font-family;
+        @include transition(background-color);
+        
+        &::placeholder {
+            color: $darkGrayishBlue;
+        }
+    }
+}
+
+.checkbox {
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid $lightGrayishBlue;
+    cursor: pointer;
+    @include transition(border);
+
+    &--form {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+    }
+
+    &--checked {
+        background: linear-gradient(45deg, $checkBackground);
+        position: relative;
+        border: none;
+
+        &::after {
+            content: url("/images/icon-check.svg");
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+}
+
+.container {
+    padding: 1.5rem;
+    height: calc(100vh - 14.375rem);
+    background-color: $veryLightGray;
+    
+    @include transition(background-color);
+
+    &__inner {
+        transform: translateY(-3rem);
+    }
+}
+
+.toDo {
+    list-style-type: none;
+    padding: 0;
+    border-radius: .25rem;
+    position: relative;
+    background-color: $white;
+    width: Min(36rem, 100%);
+    margin: 0 auto;
+    @include transition(background-color);
+
+    $self: &;
+
+    &__list {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid $veryLightGray;
+        @include transition(border-bottom);
+    }
+
+    &__text {
+        font-family: $font-family;
+        font-size: .9rem;
+        color: $veryDarkGrayishBlue;
+        display: inline-flex;
+        margin: 0 .8rem;
+        @include transition(color);
+
+        &--checked {
+            color: $lightGrayishBlue;
+            text-decoration: line-through;
+        }
+    }
+
+    &__remove {
+        margin-left: auto;
+        width: .9rem;
+    }
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    font-family: $font-family;
+    font-size: .9rem;
+    padding: 1.5rem;
+    color: $darkGrayishBlue;
+    background-color: $white;
+    width: Min(36rem, 100%);
+    margin: 0 auto;
+    @include transition(background-color);
+
+    &__remaining, &__clear {
+        margin: 0;
+    }
+
+    &__clear {
+        cursor: pointer;
+    }
+
+    &__categories {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: Min(36rem, 100%);
+        padding: 1.5rem;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 130%);
+        border-radius: .25rem;
+        background-color: $white;
+        @include transition(background-color);
+    
+        @include media-query(tablet) {
+            position: initial;
+            width: initial;
+            transform: none;
+            padding: 0;
+            border-radius: 0;
+            background-color: transparent;
+        }
+    }
+
+    &__category {
+        margin: 0 .8rem;
+        cursor: pointer;
+
+        &--active {
+            color: $brightBlue;
+        }
+    }
+}
+
+.dark-theme {
+    .header {
+        background-image: url("/images/bg-mobile-dark.jpg");
+        background-size: cover;
+
+        @include media-query(tablet) {
+            background-image: url("/images/bg-desktop-dark.jpg");
+        }
+
+        &__input {
+            background-color: $veryDarkDesaturatedBlue;
+            color: $dark-lightGrayishBlue;
+            
+            &::placeholder {
+                color: $dark-darkGrayishBlue;
+            }
+        }
+
+        &__light-mode {
+            display: block;
+        }
+
+        &__dark-mode {
+            display: none;
+        }
+    }
+
+    .checkbox {
+        border: 1px solid $dark-veryDarkGrayishBlue-2;
+    }
+
+    .container {
+        background-color: $veryDarkBlue;
+    }
+
+    .toDo {
+        background-color: $veryDarkDesaturatedBlue;
+
+        &__list {
+            border-bottom: 1px solid $dark-veryDarkGrayishBlue-2;
+        }
+
+        &__text {
+            color: $dark-lightGrayishBlue;
+
+            &--checked {
+                color: $dark-darkGrayishBlue;
+            }
+        }
+    }
+
+    .options {
+        background-color: $veryDarkDesaturatedBlue;
+        color: $dark-darkGrayishBlue;
+
+        &__categories {
+            background-color: $veryDarkDesaturatedBlue;
+
+            @include media-query(tablet) {
+                background-color: initial;
+            }
+        }
+    }
+}
+
+.attribution {
+    font-family: $font-family;
+    font-size: 11px;
+    text-align: center;
+    padding: 1rem 0;
+
+    a { color: hsl(228, 45%, 44%); }
+}
