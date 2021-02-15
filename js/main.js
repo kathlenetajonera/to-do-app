@@ -9,10 +9,10 @@ const remainingTasks = document.querySelector(".options__remaining");
 const LOCAL_STORAGE_LIST = [];
 let activeTasksCount = 0;
 
-// //detect the device's color mode
-// if (isDarkMode) {
-//     toggleTheme();
-// }
+//detect the device's color mode
+if (isDarkMode) {
+    toggleTheme();
+}
 
 themeToggler.forEach(btn => {
     btn.addEventListener("click", toggleTheme);
@@ -23,12 +23,13 @@ inputField.addEventListener("keypress", e => {
         e.preventDefault();
 
         const fieldValue = inputField.value;
+        const savedLists = LOCAL_STORAGE_LIST.map(list => list.toDo);
 
-        if (fieldValue) {
-            addToDo(fieldValue);
+        if (fieldValue && !savedLists.includes(fieldValue)) {
+            addToDo(fieldValue, false);
             inputField.value = "";
             inputField.focus();
-        } else return;
+        } else console.log("already exist");
     }
 });
 
@@ -54,21 +55,11 @@ optionsTab.addEventListener("click", e => {
 
 const optionsVisibility = () => {
     //if the list is empty, hide the options
-
     if (toDoContainer.offsetHeight === 0) {
         optionsTab.style.display = "none";
     } else {
         optionsTab.style.display = "flex";
     }
-}
-
-const tasksCounter = (type) => {
-    if (type === "inc") {
-        activeTasksCount++;
-    } else if (type === "dec") {
-        activeTasksCount--;
-    }
-    remainingTasks.textContent = `${activeTasksCount} items left`;
 }
 
 checkStorage();
@@ -82,11 +73,11 @@ function toggleTheme() {
     }
 }
 
-function addToDo(task) {
+function addToDo(task, status) {
     const toDoItem = `
-    <li class="toDo__list" data-complete="false" draggable="true">
-        <span class="checkbox"></span>
-        <p class="toDo__text">${task}</p>
+    <li class="toDo__list" data-complete="${status}" draggable="true">
+        <span class="checkbox ${ status === true ? 'checkbox--checked' : '' }"></span>
+        <p class="toDo__text ${ status === true ? 'toDo__text--checked' : '' }">${task}</p>
 
         <img class="toDo__remove" src="images/icon-cross.svg" alt="remove">
     </li>     
@@ -94,8 +85,9 @@ function addToDo(task) {
 
     toDoContainer.insertAdjacentHTML("beforeend", toDoItem);
 
-    saveToStorage(task, false);
-    tasksCounter("inc");
+    saveToStorage(task, status);
+
+    taskCounter();
     optionsVisibility();
 }
 
@@ -106,10 +98,7 @@ function removeToDo(task) {
     removeFromStorage(indexToRemove);
     toDoContainer.removeChild(taskParent);
 
-    if (taskParent.dataset.complete === "false") {
-        tasksCounter("dec");
-    }
-
+    taskCounter();
     optionsVisibility();
 }
 
@@ -136,19 +125,23 @@ function updateTaskStatus(task) {
             checkbox.classList.add("checkbox--checked");
             listText.classList.add("toDo__text--checked");
             tagAsComplete(task);
-            tasksCounter("dec");
+            taskCounter();
+
+            updateStorage(listText);
         } else {
             checkbox.classList.remove("checkbox--checked");
             listText.classList.remove("toDo__text--checked");
             tagAsIncomplete(task);
-            tasksCounter("inc");
+            taskCounter();
+
+            updateStorage(listText);
         }
     }
 }
 
 function tagAsComplete(listElement) {
     const listContainer = listElement.closest(".toDo__list");
-    
+
     listContainer.setAttribute("data-complete", "true");
 }
 
@@ -200,40 +193,64 @@ function clearCompleted() {
 
     toDoLists.forEach(list => {
         if (list.dataset.complete === "true") {
-            const indexToRemove = Array.from(toDoLists).indexOf(list);
-            const listText = list.querySelector(".toDo__text").textContent;
-
-            removeFromStorage(indexToRemove, listText);
             toDoContainer.removeChild(list);
+            removeCompletedFromStorage();
         }
     })
 
     optionsVisibility();
 }
 
-function saveToStorage(list) {
-    LOCAL_STORAGE_LIST.push(list);
+function saveToStorage(list, status) {
+    const taskList = {
+        toDo: list,
+        completed: status
+    }
+
+    LOCAL_STORAGE_LIST.push(taskList);
 
     localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST));
 }
 
-function removeFromStorage(index, text) {
-    if (LOCAL_STORAGE_LIST[index] === text) {
-        LOCAL_STORAGE_LIST.splice(index, 1)
+function updateStorage(list) {
+    const listText = list.textContent;
+    const listIndex = LOCAL_STORAGE_LIST.findIndex(list => list.toDo === listText);
+
+    if (LOCAL_STORAGE_LIST[listIndex].completed === false) {
+        LOCAL_STORAGE_LIST[listIndex].completed = true;
     } else {
-        index--;
-        LOCAL_STORAGE_LIST.splice(index, 1)
+        LOCAL_STORAGE_LIST[listIndex].completed = false;
     }
 
+    localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST))
+}
+
+function removeFromStorage(index) {
+    LOCAL_STORAGE_LIST.splice(index, 1)
+
     localStorage.setItem("toDo", JSON.stringify(LOCAL_STORAGE_LIST));
+}
+
+function removeCompletedFromStorage() {
+    const incompleteTasks = LOCAL_STORAGE_LIST.filter(list => list.completed === false);
+
+    localStorage.setItem("toDo", JSON.stringify(incompleteTasks))
 }
 
 function checkStorage() {
     if (localStorage.getItem("toDo")) {
         const savedList = JSON.parse(localStorage.getItem("toDo"))
     
-        savedList.forEach(list => addToDo(list))
+        savedList.forEach(list => {
+            addToDo(list.toDo, list.completed)
+        })
     }
+}
+
+function taskCounter() {
+    const incompleteTasks = [...document.querySelectorAll(".toDo__list")].filter(list => list.dataset.complete === "false");
+
+    remainingTasks.textContent = `${incompleteTasks.length} items left`;
 }
 
 toDoContainer.addEventListener("dragstart", e => {
