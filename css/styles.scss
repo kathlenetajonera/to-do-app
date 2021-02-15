@@ -107,8 +107,9 @@ body {
 }
 
 .container {
-    padding: 1.5rem;
-    height: calc(100vh - 14.375rem);
+    padding: 1.5rem 1.5rem 10rem 1.5rem;
+    min-height: calc(100vh - 14.375rem);
+    // min-height: 80vh;
     background-color: $veryLightGray;
     
     @include transition(background-color);
@@ -127,6 +128,7 @@ body {
     width: Min(36rem, 100%);
     margin: 0 auto;
     @include transition(background-color);
+    $self: &;
 
     &__list {
         display: flex;
@@ -134,6 +136,7 @@ body {
         padding: 1rem;
         border-bottom: 1px solid $veryLightGray;
         @include transition(border-bottom);
+        cursor: pointer;
 
         &--dragging {
             opacity: .5;
@@ -146,6 +149,14 @@ body {
         &--dropzone {
             background: rgb(214, 212, 212);
         }
+
+        @include media-query(tablet) {
+            &:hover {
+                #{ $self }__remove {
+                    display: block;
+                }
+            }
+        }
     }
 
     &__text {
@@ -154,7 +165,6 @@ body {
         color: $veryDarkGrayishBlue;
         display: inline-flex;
         margin: 0 .8rem;
-        cursor: default;
         @include transition(color);
 
         &--checked {
@@ -167,6 +177,10 @@ body {
         margin-left: auto;
         width: .9rem;
         cursor: pointer;
+
+        @include media-query(tablet) {
+            display: none;
+        }
     }
 }
 
@@ -186,8 +200,16 @@ body {
         margin: 0;
     }
 
+    &__remaining {
+        cursor: default;
+    }
+
     &__clear {
         cursor: pointer;
+
+        &:hover {
+            color: $veryDarkGrayishBlue; 
+        }
     }
 
     &__categories {
@@ -218,9 +240,25 @@ body {
         margin: 0 .8rem;
         cursor: pointer;
 
+        &:hover {
+            color: $veryDarkGrayishBlue; 
+        }
+
         &--active {
             color: $brightBlue;
         }
+    }
+
+    &__instruction {
+        font-family: $font-family;
+        font-size: .9rem;
+        color: $darkGrayishBlue;
+        position: absolute;
+        bottom: 0;
+        transform: translate(0, 400%);
+        cursor: default;
+
+        @include transition(color)
     }
 }
 
@@ -263,6 +301,18 @@ body {
 
         &__list {
             border-bottom: 1px solid $dark-veryDarkGrayishBlue-2;
+
+            &--dragging {
+                opacity: .5;
+            }
+    
+            &--inactive {
+                background: hsl(235, 17%, 14%);
+            }
+    
+            &--dropzone {
+                background: $veryDarkBlue;
+            }
         }
 
         &__text {
@@ -284,6 +334,16 @@ body {
             @include media-query(tablet) {
                 background-color: initial;
             }
+        }
+
+        &__category, &__clear {
+            &:hover {
+                color: $darkHover;
+            }
+        }
+        
+        &__instruction {
+            color: $dark-veryDarkGrayishBlue;
         }
     }
 }

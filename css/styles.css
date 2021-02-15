@@ -141,8 +141,8 @@ body {
 }
 
 .container {
-  padding: 1.5rem;
-  height: calc(100vh - 14.375rem);
+  padding: 1.5rem 1.5rem 10rem 1.5rem;
+  min-height: calc(100vh - 14.375rem);
   background-color: #fafafa;
   -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
@@ -176,6 +176,7 @@ body {
   border-bottom: 1px solid #fafafa;
   -webkit-transition: border-bottom 0.2s ease-in-out;
   transition: border-bottom 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .toDo__list--dragging {
@@ -190,6 +191,12 @@ body {
   background: #d6d4d4;
 }
 
+@media (min-width: 48rem) {
+  .toDo__list:hover .toDo__remove {
+    display: block;
+  }
+}
+
 .toDo__text {
   font-family: "Josefin Sans", sans-serif;
   font-size: .9rem;
@@ -198,7 +205,6 @@ body {
   display: -ms-inline-flexbox;
   display: inline-flex;
   margin: 0 .8rem;
-  cursor: default;
   -webkit-transition: color 0.2s ease-in-out;
   transition: color 0.2s ease-in-out;
 }
@@ -212,6 +218,12 @@ body {
   margin-left: auto;
   width: .9rem;
   cursor: pointer;
+}
+
+@media (min-width: 48rem) {
+  .toDo__remove {
+    display: none;
+  }
 }
 
 .options {
@@ -236,8 +248,16 @@ body {
   margin: 0;
 }
 
+.options__remaining {
+  cursor: default;
+}
+
 .options__clear {
   cursor: pointer;
+}
+
+.options__clear:hover {
+  color: #484b6a;
 }
 
 .options__categories {
@@ -280,8 +300,25 @@ body {
   cursor: pointer;
 }
 
+.options__category:hover {
+  color: #484b6a;
+}
+
 .options__category--active {
   color: #3a7bfd;
+}
+
+.options__instruction {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: .9rem;
+  color: #9394a5;
+  position: absolute;
+  bottom: 0;
+  -webkit-transform: translate(0, 400%);
+          transform: translate(0, 400%);
+  cursor: default;
+  -webkit-transition: color 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out;
 }
 
 .dark-theme .header {
@@ -339,6 +376,18 @@ body {
   border-bottom: 1px solid #393a4c;
 }
 
+.dark-theme .toDo__list--dragging {
+  opacity: .5;
+}
+
+.dark-theme .toDo__list--inactive {
+  background: #1e1f2a;
+}
+
+.dark-theme .toDo__list--dropzone {
+  background: #161722;
+}
+
 .dark-theme .toDo__text {
   color: #cacde8;
 }
@@ -360,6 +409,14 @@ body {
   .dark-theme .options__categories {
     background-color: initial;
   }
+}
+
+.dark-theme .options__category:hover, .dark-theme .options__clear:hover {
+  color: #e4e5f1;
+}
+
+.dark-theme .options__instruction {
+  color: #4d5066;
 }
 
 .attribution {
