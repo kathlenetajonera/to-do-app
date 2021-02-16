@@ -6,7 +6,7 @@ const toDoContainer = document.querySelector(".toDo");
 const optionsTab = document.querySelector(".options");
 const categories = document.querySelectorAll(".options__category");
 const remainingTasks = document.querySelector(".options__remaining");
-const LOCAL_STORAGE_LIST = [];
+let LOCAL_STORAGE_LIST = [];
 let activeTasksCount = 0;
 
 //detect the device's color mode
@@ -55,9 +55,9 @@ optionsTab.addEventListener("click", e => {
 
 const optionsVisibility = () => {
     //if the list is empty, hide the options
-    if (toDoContainer.offsetHeight === 0) {
+    if (toDoContainer.offsetHeight === 0 && toDoContainer.childElementCount === 0) {
         optionsTab.style.display = "none";
-    } else {
+    } else if (toDoContainer.offsetHeight > 0) {
         optionsTab.style.display = "flex";
     }
 }
@@ -234,13 +234,21 @@ function removeFromStorage(index) {
 function removeCompletedFromStorage() {
     const incompleteTasks = LOCAL_STORAGE_LIST.filter(list => list.completed === false);
 
-    localStorage.setItem("toDo", JSON.stringify(incompleteTasks))
+    LOCAL_STORAGE_LIST.forEach(list => {
+        if (list.completed === true) {
+            const listIndex = LOCAL_STORAGE_LIST.indexOf(list);
+
+            LOCAL_STORAGE_LIST.splice(listIndex, 1)
+        }
+    })
+
+    localStorage.setItem("toDo", JSON.stringify(incompleteTasks));
 }
 
 function checkStorage() {
     if (localStorage.getItem("toDo")) {
         const savedList = JSON.parse(localStorage.getItem("toDo"))
-    
+
         savedList.forEach(list => {
             addToDo(list.toDo, list.completed)
         })
