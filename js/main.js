@@ -9,6 +9,14 @@ const remainingTasks = document.querySelector(".options__remaining");
 let LOCAL_STORAGE_LIST = [];
 let activeTasksCount = 0;
 
+//for mobile touch events
+let xPos;
+let yPos;
+let touchedElement;
+let delay = 800;
+let time;
+let dragging;
+
 //detect the device's color mode
 if (isDarkMode) {
     toggleTheme();
@@ -33,15 +41,7 @@ inputField.addEventListener("keypress", e => {
     }
 });
 
-toDoContainer.addEventListener("click", e => {
-    const target = e.target;
-
-    if (target.matches(".toDo__list") || target.matches(".toDo__text") || target.matches(".checkbox")) {
-        updateTaskStatus(target);
-    } else if (target.matches(".toDo__remove")) {
-        removeToDo(target);
-    }
-});
+toDoContainer.addEventListener("click", e => handleClickEvent(e.target));
 
 optionsTab.addEventListener("click", e => {
     const target = e.target;
@@ -60,6 +60,16 @@ const optionsVisibility = () => {
     } else if (toDoContainer.offsetHeight > 0) {
         optionsTab.style.display = "flex";
     }
+}
+
+const disableScrolling = () => {
+    body.style.height = "100vh";
+    body.style.overflowY = "hidden";
+}
+
+const enableScrolling = () => {
+    body.style.height = "";
+    body.style.overflowY = "";
 }
 
 checkStorage();
@@ -261,26 +271,38 @@ function taskCounter() {
     remainingTasks.textContent = `${incompleteTasks.length} items left`;
 }
 
-toDoContainer.addEventListener("dragstart", e => {
-    const target = e.target;
+function handleClickEvent(elem) {
+    if (elem.matches(".toDo__list") || elem.matches(".toDo__text") || elem.matches(".checkbox")) {
+        updateTaskStatus(elem);
+    } else if (elem.matches(".toDo__remove")) {
+        removeToDo(elem);
+    }
+}
+
+function handleDragEvent(elem) {
+    let target = elem;
+
     target.classList.add("toDo__list--dragging");
 
     const inactive = toDoContainer.querySelectorAll(".toDo__list:not(.toDo__list--dragging)");
 
     inactive.forEach(list => list.classList.add("toDo__list--inactive"));
-});
+}
 
-toDoContainer.addEventListener("dragend", e => {
-    const target = e.target;
-    const inactive = toDoContainer.querySelectorAll(".toDo__list:not(.toDo__list--dragging)");
-
-    target.classList.remove("toDo__list--dragging");
-
-    inactive.forEach(list => {
+function handleDragEndEvent() {
+    const allList = toDoContainer.querySelectorAll(".toDo__list");
+    
+    allList.forEach(list => {
+        list.classList.remove("toDo__list--dragging");
         list.classList.remove("toDo__list--inactive");
-        list.classList.remove("toDo__list--dropzone")
+        list.classList.remove("toDo__list--dropzone");
     })
-})
+}
+
+//drag & drop event listeners
+toDoContainer.addEventListener("dragstart", e => handleDragEvent(e.target));
+
+toDoContainer.addEventListener("dragend", e => handleDragEndEvent());
 
 toDoContainer.addEventListener("dragenter", e => {
     const target = e.target; 
@@ -307,3 +329,64 @@ toDoContainer.addEventListener("drop", e => {
 
     listContainer.insertBefore(selectedList, target);
 })
+
+toDoContainer.addEventListener("touchstart", e => {
+    e.preventDefault();
+    const target = e.target;
+    dragging = false;
+
+    handleClickEvent(target);
+
+    if (target.tagName.toLowerCase() === "li") {
+        touchedElement = target;
+    } else if (target.tagName.toLowerCase() === "p" || target.tagName.toLowerCase() === "span") {
+        touchedElement = target.closest(".toDo__list")
+    }
+
+    time = setTimeout(longPress.bind(touchedElement), delay);
+
+    touchedElement.addEventListener("touchend", () => {
+        clearTimeout(time);
+    });
+})
+
+function longPress() {
+    touchedElement = this;
+
+    handleDragEvent(touchedElement)
+
+    toDoContainer.addEventListener("touchmove", e => {
+        dragging = true;
+        xPos = e.touches[0].clientX;
+        yPos = e.touches[0].clientY;
+    
+        const allList = toDoContainer.querySelectorAll(".toDo__list");
+        const hoveredOver = document.elementFromPoint(xPos, yPos);
+    
+        allList.forEach(list => {
+            list.classList.remove("toDo__list--dropzone");
+        })
+
+        if (hoveredOver.tagName.toLowerCase() === "li") {
+            hoveredOver.classList.add("toDo__list--dropzone");
+        }
+    
+        disableScrolling();
+    })
+
+    toDoContainer.addEventListener("touchend", e => {
+        if (dragging === true) {
+            handleDragEndEvent();
+            enableScrolling();
+            getHoveredElement(xPos, yPos);
+        }
+    });
+}
+
+function getHoveredElement(x, y) {
+    const hoveredElement = document.elementFromPoint(x, y)
+
+    if (hoveredElement.tagName.toLowerCase() === "li") {
+        toDoContainer.insertBefore(touchedElement, hoveredElement);
+    }
+}
