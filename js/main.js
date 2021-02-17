@@ -307,7 +307,7 @@ toDoContainer.addEventListener("dragend", e => handleDragEndEvent());
 toDoContainer.addEventListener("dragenter", e => {
     const target = e.target; 
 
-    if (!target.classList.contains("toDo__list--dragging")) {
+    if (target.tagName.toLowerCase() === "li") {
         target.classList.add("toDo__list--dropzone");
     }
 })
@@ -323,11 +323,20 @@ toDoContainer.addEventListener("dragover", e => {
 })
 
 toDoContainer.addEventListener("drop", e => {
-    const target = e.target;
-    const listContainer = target.parentElement;
+    let target = e.target;
+    let listContainer;
     const selectedList = document.querySelector(".toDo__list--dragging");
 
-    listContainer.insertBefore(selectedList, target);
+    if (target.tagName.toLowerCase() === "li") {
+        listContainer = target.parentElement;
+
+        listContainer.insertBefore(selectedList, target);
+    } else if (target.tagName.toLowerCase() === "p" || target.tagName.toLowerCase() === "span") {
+        listContainer = target.closest(".toDo")
+        target = target.closest(".toDo__list");
+        
+        listContainer.insertBefore(selectedList, target);
+    }
 })
 
 toDoContainer.addEventListener("touchstart", e => {
